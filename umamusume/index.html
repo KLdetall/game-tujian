@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>赛马娘 图鉴分类</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      background: url("../images/赛马娘.jpg") no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 0;
+    }
+
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 20px 28px;
+    }
+
+    .back-link {
+      display: inline-block;
+      color: #ccc;
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 10px;
+      padding: 7px 16px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.2s;
+    }
+    .back-link:hover {
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
+    }
+
+    .page-title {
+      text-align: center;
+      font-size: 38px;
+      font-weight: bold;
+      margin-bottom: 24px;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+      letter-spacing: 5px;
+    }
+
+    /* ========== Main Layout: Left 68% + Right 32% ========== */
+    .main-layout {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .left-area {
+      flex: 0 0 68%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .right-area {
+      flex: 0 0 32%;
+      position: sticky;
+      top: 20px;
+      min-width: 340px;
+    }
+
+    /* ========== Layer 1: 马娘 + 支援卡 ========== */
+    .layer-1 .row {
+      display: flex;
+      gap: 16px;
+    }
+
+    .layer-1 .col-half {
+      flex: 1;
+      min-width: 280px;
+    }
+
+    /* ========== Section Box ========== */
+    .section-box {
+      background: rgba(10, 10, 24, 0.78);
+      backdrop-filter: blur(10px);
+      border-radius: 10px;
+      border-left: 5px solid #555;
+      padding: 14px 18px;
+      transition: border-left-color 0.3s;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .section-label {
+      display: inline-block;
+      padding: 5px 16px;
+      border-radius: 6px;
+      color: #fff;
+      font-weight: bold;
+      font-size: 1em;
+      letter-spacing: 1px;
+    }
+
+    .section-count {
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    /* ========== Category Colors: 马娘 / 支援卡 ========== */
+    .sec-umamusume { border-left-color: #ffb74d; }
+    .lbl-umamusume { background: #ffb74d; color: #1a1a1a; }
+
+    .sec-support { border-left-color: #ba68c8; }
+    .lbl-support { background: #ba68c8; }
+
+    /* ========== Tag Colors: 逃 / 先 / 差 / 追 ========== */
+    .sec-nige { border-left-color: #66bb6a; }
+    .lbl-nige { background: #66bb6a; color: #1a1a1a; }
+
+    .sec-sen { border-left-color: #42a5f5; }
+    .lbl-sen { background: #42a5f5; color: #1a1a1a; }
+
+    .sec-sashi { border-left-color: #ffa726; }
+    .lbl-sashi { background: #ffa726; color: #1a1a1a; }
+
+    .sec-oikomi { border-left-color: #ef5350; }
+    .lbl-oikomi { background: #ef5350; }
+
+    /* ========== Layer 2: Tag Buttons + Hint ========== */
+    .layer-2 {
+      background: rgba(10, 10, 24, 0.7);
+      backdrop-filter: blur(8px);
+      border-radius: 10px;
+      padding: 16px 20px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .tag-controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .tag-btn {
+      padding: 10px 32px;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      background: rgba(0, 0, 0, 0.4);
+      color: #fff;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1.15em;
+      font-weight: bold;
+      transition: all 0.3s;
+      letter-spacing: 2px;
+    }
+
+    .tag-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .tag-btn.active {
+      background: #ffd740;
+      color: #000;
+      border-color: #ffd740;
+      box-shadow: 0 0 16px rgba(255, 215, 64, 0.5);
+    }
+
+    .hint-text {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    /* ========== Layer 3: Tag Zones (2x2 grid) ========== */
+    .layer-3 .row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 0;
+    }
+
+    .layer-3 .col-half {
+      flex: 1;
+      min-width: 280px;
+    }
+
+    /* ========== Candidate Panel ========== */
+    .candidate-panel {
+      background: rgba(10, 10, 24, 0.82);
+      backdrop-filter: blur(12px);
+      border-radius: 10px;
+      border: 2px solid rgba(255, 215, 64, 0.25);
+      padding: 16px;
+      max-height: calc(100vh - 40px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .candidate-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .candidate-title {
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .candidate-count {
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    .candidate-upload-btn {
+      display: inline-block;
+      padding: 8px 18px;
+      background: rgba(255, 215, 64, 0.15);
+      border: 1px solid rgba(255, 215, 64, 0.35);
+      color: #ffd740;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .candidate-upload-btn:hover {
+      background: rgba(255, 215, 64, 0.28);
+      color: #fff;
+    }
+
+    #upload-input {
+      display: none;
+    }
+
+    .candidate-scroll {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 180px;
+    }
+
+    .candidate-scroll::-webkit-scrollbar { width: 5px; }
+    .candidate-scroll::-webkit-scrollbar-track { background: transparent; }
+    .candidate-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+
+    /* ========== Drop Zone Tweaks ========== */
+    .drop-zone {
+      min-height: 100px;
+    }
+
+    .drop-zone .placeholder {
+      color: rgba(255, 255, 255, 0.22);
+      font-size: 0.85em;
+      width: 100%;
+      text-align: center;
+      padding: 30px 0;
+    }
+
+    /* ========== Responsive ========== */
+    @media (max-width: 1200px) {
+      .main-layout { flex-direction: column; }
+      .left-area { flex: 1 1 auto; }
+      .right-area { flex: 1 1 auto; position: static; max-height: none; min-width: 0; }
+      .candidate-panel { max-height: 500px; }
+    }
+
+    @media (max-width: 768px) {
+      .page-wrapper { padding: 12px; }
+      .page-title { font-size: 26px; letter-spacing: 2px; }
+      .layer-1 .row, .layer-3 .row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+  <a href="../index.html" class="back-link">&larr; 返回主页</a>
+  <h1 class="page-title">赛马娘 图鉴分类</h1>
+
+  <div class="main-layout">
+    <!-- ========== 左侧：三层布局 ========== -->
+    <div class="left-area">
+
+      <!-- 第一层：马娘 + 支援卡 -->
+      <div class="layer-1">
+        <div class="row">
+          <div class="col-half">
+            <div class="section-box sec-umamusume">
+              <div class="section-header">
+                <span class="section-label lbl-umamusume">&#x1F434; 马娘</span>
+                <span class="section-count">(<span id="count-umamusume">0</span>/20)</span>
+              </div>
+              <div class="drop-zone" id="zone-umamusume" data-category="umamusume"></div>
+            </div>
+          </div>
+          <div class="col-half">
+            <div class="section-box sec-support">
+              <div class="section-header">
+                <span class="section-label lbl-support">&#x1F4CB; 支援卡</span>
+                <span class="section-count">(<span id="count-support">0</span>/20)</span>
+              </div>
+              <div class="drop-zone" id="zone-support" data-category="support"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第二层：标记按钮 + 提示 -->
+      <div class="layer-2">
+        <div class="tag-controls">
+          <button class="tag-btn" data-tag="逃">逃</button>
+          <button class="tag-btn" data-tag="先">先</button>
+          <button class="tag-btn" data-tag="差">差</button>
+          <button class="tag-btn" data-tag="追">追</button>
+        </div>
+        <p class="hint-text">1. 从候选区选中图片 &rarr; 2. 点击标记按钮 &rarr; 3. 图片自动归入下方对应区域</p>
+      </div>
+
+      <!-- 第三层：四个标记分类区域 (2x2) -->
+      <div class="layer-3">
+        <div class="row">
+          <div class="col-half">
+            <div class="section-box sec-nige">
+              <div class="section-header">
+                <span class="section-label lbl-nige">&#x1F3C3; 逃</span>
+                <span class="section-count">(<span id="count-逃">0</span>/20)</span>
+              </div>
+              <div class="drop-zone" id="zone-逃" data-category="逃"></div>
+            </div>
+          </div>
+          <div class="col-half">
+            <div class="section-box sec-sen">
+              <div class="section-header">
+                <span class="section-label lbl-sen">&#x1F3C7; 先</span>
+                <span class="section-count">(<span id="count-先">0</span>/20)</span>
+              </div>
+              <div class="drop-zone" id="zone-先" data-category="先"></div>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:16px;">
+          <div class="col-half">
+            <div class="section-box sec-sashi">
+              <div class="section-header">
+                <span class="section-label lbl-sashi">&#x1F40E; 差</span>
+                <span class="section-count">(<span id="count-差">0</span>/20)</span>
+              </div>
+              <div class="drop-zone" id="zone-差" data-category="差"></div>
+            </div>
+          </div>
+          <div class="col-half">
+            <div class="section-box sec-oikomi">
+              <div class="section-header">
+                <span class="section-label lbl-oikomi">&#x1F4A8; 追</span>
+                <span class="section-count">(<span id="count-追">0</span>/20)</span>
+              </div>
+              <div class="drop-zone" id="zone-追" data-category="追"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 右侧：候选区 ========== -->
+    <div class="right-area">
+      <div class="candidate-panel">
+        <div class="candidate-header">
+          <span class="candidate-title">&#x1F4E6; 候选区</span>
+          <span class="candidate-count">(<span id="count-candidate">0</span>/100)</span>
+        </div>
+        <label class="candidate-upload-btn" for="upload-input">&#x1F4E4; 上传图片</label>
+        <input type="file" id="upload-input" accept="image/*" multiple>
+        <div class="drop-zone candidate-scroll" id="zone-candidate" data-category="__candidate__"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/db.js"></script>
+<script src="../js/upload.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var GAME = 'umamusume';
+
+  /* All possible category values */
+  var ALL_CATEGORIES = ['__candidate__', 'umamusume', 'support', '逃', '先', '差', '追'];
+
+  /* ---- DOM references ---- */
+  var zones = {};
+  var countSpans = {};
+
+  for (var i = 0; i < ALL_CATEGORIES.length; i++) {
+    var cat = ALL_CATEGORIES[i];
+    var zoneId = (cat === '__candidate__') ? 'zone-candidate' : 'zone-' + cat;
+    var countId = (cat === '__candidate__') ? 'count-candidate' : 'count-' + cat;
+    zones[cat] = document.getElementById(zoneId);
+    countSpans[cat] = document.getElementById(countId);
+  }
+
+  var uploadInput = document.getElementById('upload-input');
+  var tagBtns = document.querySelectorAll('.tag-btn');
+
+  /* ---- State: currently selected image ID ---- */
+  var selectedImageId = null;
+
+  /* ========== Placeholder maintenance ========== */
+  function ensurePlaceholder(container) {
+    var cards = container.querySelectorAll('.img-card');
+    var placeholder = container.querySelector('.placeholder');
+    if (cards.length === 0 && !placeholder) {
+      var ph = document.createElement('div');
+      ph.className = 'placeholder';
+      ph.textContent = '拖拽图片到此处 或 从候选区添加';
+      container.appendChild(ph);
+    } else if (cards.length > 0 && placeholder) {
+      placeholder.remove();
+    }
+  }
+
+  /* ========== Refresh all zone counts ========== */
+  async function refreshAllCounts() {
+    for (var i = 0; i < ALL_CATEGORIES.length; i++) {
+      var cat = ALL_CATEGORIES[i];
+      var count = await imageDB.getCategoryCount(GAME, cat);
+      if (countSpans[cat]) {
+        countSpans[cat].textContent = count;
+      }
+    }
+  }
+
+  /* ========== Clear selection ========== */
+  function clearSelection() {
+    var allSelected = document.querySelectorAll('.img-card.selected');
+    for (var i = 0; i < allSelected.length; i++) {
+      allSelected[i].classList.remove('selected');
+    }
+    selectedImageId = null;
+
+    /* Also deactivate all tag buttons */
+    for (var j = 0; j < tagBtns.length; j++) {
+      tagBtns[j].classList.remove('active');
+    }
+  }
+
+  /* ========== Click handler: select image ========== */
+  function handleClick(imgData, card) {
+    /* Clear previous selection */
+    var allSelected = document.querySelectorAll('.img-card.selected');
+    for (var i = 0; i < allSelected.length; i++) {
+      allSelected[i].classList.remove('selected');
+    }
+
+    /* Select this card */
+    card.classList.add('selected');
+    selectedImageId = imgData.id;
+  }
+
+  /* ========== Delete handler ========== */
+  async function handleDelete(imgId, card) {
+    if (selectedImageId === imgId) {
+      clearSelection();
+    }
+    await imageDB.removeImage(imgId);
+    var parent = card.parentNode;
+    card.remove();
+    if (parent) ensurePlaceholder(parent);
+    await refreshAllCounts();
+  }
+
+  /* ========== Drop handler (drag & drop between zones) ========== */
+  async function onDrop(dragData, targetZone) {
+    var imgId = dragData.id;
+    var toCat = targetZone.dataset.category;
+
+    /* Find the card in DOM */
+    var card = document.querySelector('.img-card[data-id="' + imgId + '"]');
+    if (!card) return;
+
+    var fromCat = card.dataset.category || '__candidate__';
+    if (fromCat === toCat) return;
+
+    /* Capacity check */
+    if (toCat !== '__candidate__') {
+      var catFull = await imageDB.isCategoryFull(GAME, toCat);
+      if (catFull) {
+        alert('该区域已满 (20 张)');
+        return;
+      }
+    } else {
+      var candFull = await imageDB.isCandidateFull(GAME);
+      if (candFull) {
+        alert('候选区已满 (100 张)');
+        return;
+      }
+    }
+
+    /* If this was the selected image, clear selection */
+    if (selectedImageId === imgId) {
+      clearSelection();
+    }
+
+    /* Update DB */
+    await imageDB.updateCategory(imgId, toCat);
+
+    /* Update card dataset */
+    card.dataset.category = toCat;
+
+    /* Move in DOM */
+    var sourceParent = card.parentNode;
+    targetZone.appendChild(card);
+
+    if (sourceParent) ensurePlaceholder(sourceParent);
+    ensurePlaceholder(targetZone);
+
+    await refreshAllCounts();
+  }
+
+  /* ========== Tag button click: tag selected image ========== */
+  async function handleTagClick(tag) {
+    if (selectedImageId === null) {
+      alert('请先从候选区选中一张图片，再点击标记按钮');
+      return;
+    }
+
+    var card = document.querySelector('.img-card[data-id="' + selectedImageId + '"]');
+    if (!card) {
+      clearSelection();
+      alert('选中的图片已不存在，请重新选择');
+      return;
+    }
+
+    /* Capacity check for target tag zone */
+    var tagFull = await imageDB.isCategoryFull(GAME, tag);
+    if (tagFull) {
+      alert('该标记区域已满 (20 张)');
+      return;
+    }
+
+    var sourceParent = card.parentNode;
+
+    /* Update DB: set tag AND change category to tag value */
+    await imageDB.updateTag(selectedImageId, tag);
+    await imageDB.updateCategory(selectedImageId, tag);
+
+    /* Update card DOM */
+    card.dataset.category = tag;
+    card.dataset.tag = tag;
+    card.classList.remove('selected');
+
+    /* Update or create tag badge */
+    var badge = card.querySelector('.tag-badge');
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'tag-badge';
+      card.appendChild(badge);
+    }
+    badge.textContent = tag;
+
+    /* Move card to the corresponding tag zone */
+    var targetZone = zones[tag];
+    if (targetZone) {
+      targetZone.appendChild(card);
+      ensurePlaceholder(targetZone);
+    }
+
+    /* Ensure source zone placeholder */
+    if (sourceParent) ensurePlaceholder(sourceParent);
+
+    /* Clear selection state */
+    clearSelection();
+
+    await refreshAllCounts();
+  }
+
+  /* ========== Load from DB and render all zones ========== */
+  async function loadAndRender() {
+    var allImages = await imageDB.getImagesByGame(GAME);
+
+    /* Group by category */
+    var groups = {};
+    for (var i = 0; i < ALL_CATEGORIES.length; i++) {
+      groups[ALL_CATEGORIES[i]] = [];
+    }
+    for (var j = 0; j < allImages.length; j++) {
+      var img = allImages[j];
+      var cat = img.category || '__candidate__';
+      if (groups[cat] !== undefined) {
+        groups[cat].push(img);
+      } else {
+        /* Unknown category — put in candidate */
+        groups['__candidate__'].push(img);
+      }
+    }
+
+    /* Render each zone */
+    for (var k = 0; k < ALL_CATEGORIES.length; k++) {
+      var cat = ALL_CATEGORIES[k];
+      if (zones[cat]) {
+        renderImages(zones[cat], groups[cat], handleClick, handleDelete);
+      }
+    }
+
+    await refreshAllCounts();
+  }
+
+  /* ========== Initialization ========== */
+  async function init() {
+    await imageDB.open();
+
+    /* Setup drop zones */
+    for (var i = 0; i < ALL_CATEGORIES.length; i++) {
+      var cat = ALL_CATEGORIES[i];
+      if (zones[cat]) {
+        setupDropZone(zones[cat], onDrop);
+      }
+    }
+
+    /* Setup tag buttons */
+    for (var j = 0; j < tagBtns.length; j++) {
+      tagBtns[j].addEventListener('click', function (e) {
+        var tag = this.dataset.tag;
+
+        /* Toggle active state on the clicked button */
+        if (this.classList.contains('active')) {
+          /* Deactivate and clear selection */
+          clearSelection();
+        } else {
+          /* Deactivate all buttons, then activate this one */
+          for (var k = 0; k < tagBtns.length; k++) {
+            tagBtns[k].classList.remove('active');
+          }
+          this.classList.add('active');
+
+          /* If an image is selected, apply the tag immediately */
+          if (selectedImageId !== null) {
+            handleTagClick(tag);
+          }
+        }
+      });
+    }
+
+    /* Setup upload */
+    setupUpload(uploadInput, GAME, async function (id, dataUrl, fileName) {
+      var imgData = {
+        id: id,
+        data: dataUrl,
+        category: '__candidate__',
+        tag: null,
+        name: fileName
+      };
+      var card = createImageCard(imgData, handleClick, handleDelete);
+      var zone = zones['__candidate__'];
+      ensurePlaceholder(zone);
+      zone.appendChild(card);
+      ensurePlaceholder(zone);
+      await refreshAllCounts();
+    });
+
+    /* Load existing data */
+    await loadAndRender();
+  }
+
+  init().catch(function (err) {
+    console.error('初始化失败:', err);
+  });
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>明日方舟 干员排行</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: url("../images/明日方舟.png") no-repeat center center fixed;
+      background-size: cover;
+      color: #eee;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      z-index: 0;
+    }
+
+    .page-container {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .back-link {
+      display: inline-block;
+      color: #ccc;
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 12px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.1);
+      transition: all 0.2s;
+    }
+    .back-link:hover {
+      background: rgba(255,255,255,0.25);
+      color: #fff;
+    }
+
+    .page-title {
+      text-align: center;
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 28px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+      letter-spacing: 2px;
+    }
+
+    .main-layout {
+      display: flex;
+      gap: 20px;
+    }
+
+    /* === 左侧排行区 === */
+    .tier-area {
+      flex: 0 0 75%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tier-section {
+      background: rgba(20, 20, 30, 0.75);
+      border-radius: 10px;
+      border: 2px solid #555;
+      padding: 12px;
+      overflow: hidden;
+    }
+
+    .tier-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .tier-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 16px;
+      letter-spacing: 1px;
+    }
+
+    .tier-count {
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    .tier-dropzone {
+      min-height: 120px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 6px;
+      border-radius: 6px;
+      transition: background 0.2s;
+      align-content: flex-start;
+    }
+
+    /* 各等级颜色 */
+    .tier-sss {
+      border-color: #e74c3c;
+    }
+    .tier-sss .tier-badge {
+      background: rgba(231, 76, 60, 0.35);
+      color: #ff6b6b;
+      border: 1px solid #e74c3c;
+    }
+    .tier-sss .tier-dropzone {
+      min-height: 220px;
+    }
+
+    .tier-ss {
+      border-color: #e67e22;
+    }
+    .tier-ss .tier-badge {
+      background: rgba(230, 126, 34, 0.35);
+      color: #f0a040;
+      border: 1px solid #e67e22;
+    }
+    .tier-ss .tier-dropzone {
+      min-height: 190px;
+    }
+
+    .tier-s {
+      border-color: #f1c40f;
+    }
+    .tier-s .tier-badge {
+      background: rgba(241, 196, 15, 0.35);
+      color: #f7dc6f;
+      border: 1px solid #f1c40f;
+    }
+    .tier-s .tier-dropzone {
+      min-height: 170px;
+    }
+
+    .tier-a {
+      border-color: #2ecc71;
+    }
+    .tier-a .tier-badge {
+      background: rgba(46, 204, 113, 0.35);
+      color: #58d68d;
+      border: 1px solid #2ecc71;
+    }
+    .tier-a .tier-dropzone {
+      min-height: 150px;
+    }
+
+    .tier-b {
+      border-color: #95a5a6;
+    }
+    .tier-b .tier-badge {
+      background: rgba(149, 165, 166, 0.35);
+      color: #bdc3c7;
+      border: 1px solid #95a5a6;
+    }
+    .tier-b .tier-dropzone {
+      min-height: 150px;
+    }
+
+    .tier-dropzone.drag-over {
+      background: rgba(255, 255, 255, 0.08);
+      outline: 2px dashed rgba(255,255,255,0.4);
+      outline-offset: -2px;
+    }
+
+    /* === 右侧候选区 === */
+    .sidebar {
+      flex: 0 0 25%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .candidate-panel {
+      background: rgba(20, 20, 30, 0.75);
+      border-radius: 10px;
+      border: 2px solid #5dade2;
+      padding: 14px;
+      position: sticky;
+      top: 20px;
+      max-height: calc(100vh - 40px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .candidate-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .candidate-title {
+      font-weight: bold;
+      font-size: 17px;
+      color: #85c1e9;
+    }
+
+    .candidate-count {
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    .upload-btn {
+      display: inline-block;
+      padding: 6px 14px;
+      background: rgba(93, 173, 226, 0.3);
+      border: 1px solid #5dade2;
+      color: #85c1e9;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .upload-btn:hover {
+      background: rgba(93, 173, 226, 0.5);
+      color: #fff;
+    }
+
+    .candidate-dropzone {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 6px;
+      border-radius: 6px;
+      min-height: 200px;
+      align-content: flex-start;
+      transition: background 0.2s;
+    }
+
+    .candidate-dropzone.drag-over {
+      background: rgba(255, 255, 255, 0.06);
+      outline: 2px dashed rgba(93, 173, 226, 0.5);
+      outline-offset: -2px;
+    }
+
+    /* === 图片卡片 === */
+    .image-card {
+      position: relative;
+      width: 150px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.15);
+      background: rgba(0,0,0,0.4);
+      cursor: grab;
+      transition: transform 0.15s, box-shadow 0.15s;
+      flex-shrink: 0;
+    }
+    .image-card:active {
+      cursor: grabbing;
+    }
+    .image-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+    }
+    .image-card.dragging {
+      opacity: 0.5;
+    }
+
+    .image-card img {
+      width: 150px;
+      height: 164px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-delete-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 22px;
+      height: 22px;
+      background: rgba(220, 20, 60, 0.8);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 22px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .image-card:hover .card-delete-btn {
+      opacity: 1;
+    }
+    .card-delete-btn:hover {
+      background: rgba(255, 50, 50, 0.95);
+    }
+
+    .card-name {
+      text-align: center;
+      font-size: 12px;
+      padding: 4px 6px;
+      color: #ccc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 滚动条 */
+    .candidate-dropzone::-webkit-scrollbar {
+      width: 5px;
+    }
+    .candidate-dropzone::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .candidate-dropzone::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 3px;
+    }
+
+    #file-input {
+      display: none;
+    }
+
+    .tier-dropzone:empty::after,
+    .candidate-dropzone:empty::after {
+      content: "拖拽图片到此处";
+      display: block;
+      width: 100%;
+      text-align: center;
+      color: rgba(255,255,255,0.25);
+      font-size: 13px;
+      padding: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-container">
+  <a href="../index.html" class="back-link">&larr; 返回主页</a>
+  <h1 class="page-title">明日方舟 干员排行</h1>
+
+  <div class="main-layout">
+    <!-- 左侧排行区 -->
+    <div class="tier-area">
+      <div class="tier-section tier-sss" id="tier-sss">
+        <div class="tier-header">
+          <span class="tier-badge">幻神</span>
+          <span class="tier-count">(<span id="count-sss">0</span>/20)</span>
+        </div>
+        <div class="tier-dropzone" id="dropzone-sss" data-category="tier-sss"></div>
+      </div>
+
+      <div class="tier-section tier-ss" id="tier-ss">
+        <div class="tier-header">
+          <span class="tier-badge">超大杯</span>
+          <span class="tier-count">(<span id="count-ss">0</span>/20)</span>
+        </div>
+        <div class="tier-dropzone" id="dropzone-ss" data-category="tier-ss"></div>
+      </div>
+
+      <div class="tier-section tier-s" id="tier-s">
+        <div class="tier-header">
+          <span class="tier-badge">大杯</span>
+          <span class="tier-count">(<span id="count-s">0</span>/20)</span>
+        </div>
+        <div class="tier-dropzone" id="dropzone-s" data-category="tier-s"></div>
+      </div>
+
+      <div class="tier-section tier-a" id="tier-a">
+        <div class="tier-header">
+          <span class="tier-badge">中杯</span>
+          <span class="tier-count">(<span id="count-a">0</span>/20)</span>
+        </div>
+        <div class="tier-dropzone" id="dropzone-a" data-category="tier-a"></div>
+      </div>
+
+      <div class="tier-section tier-b" id="tier-b">
+        <div class="tier-header">
+          <span class="tier-badge">区</span>
+          <span class="tier-count">(<span id="count-b">0</span>/20)</span>
+        </div>
+        <div class="tier-dropzone" id="dropzone-b" data-category="tier-b"></div>
+      </div>
+    </div>
+
+    <!-- 右侧候选区 -->
+    <div class="sidebar">
+      <div class="candidate-panel" id="candidate-panel">
+        <div class="candidate-header">
+          <span class="candidate-title">候选区</span>
+          <span class="candidate-count">(<span id="count-candidate">0</span>/100)</span>
+        </div>
+        <label class="upload-btn" for="file-input">上传图片</label>
+        <input type="file" id="file-input" accept="image/*" multiple>
+        <div class="candidate-dropzone" id="dropzone-candidate" data-category="candidate"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/db.js"></script>
+<script src="../js/upload.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  const GAME = "arknights";
+  const MAX_TIER = 20;
+  const MAX_CANDIDATE = 100;
+
+  /* ========== 元素引用 ========== */
+  const fileInput = document.getElementById("file-input");
+  const dropzones = {
+    "tier-sss":  document.getElementById("dropzone-sss"),
+    "tier-ss":   document.getElementById("dropzone-ss"),
+    "tier-s":    document.getElementById("dropzone-s"),
+    "tier-a":    document.getElementById("dropzone-a"),
+    "tier-b":    document.getElementById("dropzone-b"),
+    "candidate": document.getElementById("dropzone-candidate")
+  };
+  const countSpans = {
+    "tier-sss":  document.getElementById("count-sss"),
+    "tier-ss":   document.getElementById("count-ss"),
+    "tier-s":    document.getElementById("count-s"),
+    "tier-a":    document.getElementById("count-a"),
+    "tier-b":    document.getElementById("count-b"),
+    "candidate": document.getElementById("count-candidate")
+  };
+
+  /* ========== 创建图片卡片 ========== */
+  function createImageCard(imageRecord) {
+    const card = document.createElement("div");
+    card.className = "image-card";
+    card.draggable = true;
+    card.dataset.id = imageRecord.id;
+    card.dataset.category = imageRecord.category;
+
+    const img = document.createElement("img");
+    img.src = imageRecord.dataUrl || imageRecord.src || "";
+    img.alt = imageRecord.name || "";
+    img.draggable = false; /* 防止拖拽图片本身 */
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "card-delete-btn";
+    delBtn.textContent = "x";
+    delBtn.title = "删除";
+    delBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      removeCard(imageRecord.id);
+    });
+
+    const nameEl = document.createElement("div");
+    nameEl.className = "card-name";
+    nameEl.textContent = imageRecord.name || "";
+
+    card.appendChild(img);
+    card.appendChild(delBtn);
+    card.appendChild(nameEl);
+
+    /* ===== 拖拽事件 ===== */
+    card.addEventListener("dragstart", function (e) {
+      card.classList.add("dragging");
+      e.dataTransfer.setData("text/plain", imageRecord.id);
+      e.dataTransfer.effectAllowed = "move";
+    });
+
+    card.addEventListener("dragend", function () {
+      card.classList.remove("dragging");
+    });
+
+    return card;
+  }
+
+  /* ========== 设置拖放区域 ========== */
+  function setupDropZone(dropzone, category) {
+    dropzone.addEventListener("dragover", function (e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      dropzone.classList.add("drag-over");
+    });
+
+    dropzone.addEventListener("dragleave", function () {
+      dropzone.classList.remove("drag-over");
+    });
+
+    dropzone.addEventListener("drop", function (e) {
+      e.preventDefault();
+      dropzone.classList.remove("drag-over");
+      const cardId = e.dataTransfer.getData("text/plain");
+      if (cardId) {
+        moveToCategory(cardId, category);
+      }
+    });
+  }
+
+  /* ========== 移动卡片到指定分类 ========== */
+  async function moveToCategory(cardId, targetCategory) {
+    /* 获取当前记录 */
+    const record = await imageDB.get(cardId);
+    if (!record) return;
+
+    const fromCategory = record.category;
+
+    /* 同一分类不处理 */
+    if (fromCategory === targetCategory) return;
+
+    /* 目标容量检查 */
+    if (targetCategory === "candidate") {
+      const count = await imageDB.countByGameAndCategory(GAME, "candidate");
+      if (count >= MAX_CANDIDATE) {
+        alert("候选区已满 (100/100)");
+        return;
+      }
+    } else {
+      const count = await imageDB.countByGameAndCategory(GAME, targetCategory);
+      if (count >= MAX_TIER) {
+        alert("该等级已满 (20/20)");
+        return;
+      }
+    }
+
+    /* 从 DOM 移除旧卡片 */
+    const oldCard = dropzones[fromCategory]
+      ? dropzones[fromCategory].querySelector(`[data-id="${cardId}"]`)
+      : null;
+    if (oldCard) oldCard.remove();
+
+    /* 更新数据库 */
+    record.category = targetCategory;
+    await imageDB.put(record);
+
+    /* 在新区域渲染 */
+    const newCard = createImageCard(record);
+    if (dropzones[targetCategory]) {
+      dropzones[targetCategory].appendChild(newCard);
+    }
+
+    /* 刷新计数 */
+    refreshAllCounts();
+  }
+
+  /* ========== 删除卡片 ========== */
+  async function removeCard(cardId) {
+    const record = await imageDB.get(cardId);
+    if (!record) return;
+
+    await imageDB.delete(cardId);
+
+    const card = document.querySelector(`.image-card[data-id="${cardId}"]`);
+    if (card) card.remove();
+
+    refreshAllCounts();
+  }
+
+  /* ========== 渲染所有分类图片 ========== */
+  async function renderImages() {
+    const allRecords = await imageDB.getByGame(GAME);
+
+    /* 清空所有区域 */
+    Object.values(dropzones).forEach(function (dz) {
+      if (dz) dz.innerHTML = "";
+    });
+
+    allRecords.forEach(function (record) {
+      const card = createImageCard(record);
+      if (dropzones[record.category]) {
+        dropzones[record.category].appendChild(card);
+      }
+    });
+
+    refreshAllCounts();
+  }
+
+  /* ========== 刷新计数 ========== */
+  async function refreshAllCounts() {
+    const categories = ["tier-sss", "tier-ss", "tier-s", "tier-a", "tier-b", "candidate"];
+    for (let i = 0; i < categories.length; i++) {
+      const cat = categories[i];
+      const count = await imageDB.countByGameAndCategory(GAME, cat);
+      if (countSpans[cat]) {
+        countSpans[cat].textContent = count;
+      }
+    }
+  }
+
+  /* ========== 上传处理 ========== */
+  async function handleUpload(files) {
+    const candidateCount = await imageDB.countByGameAndCategory(GAME, "candidate");
+    const remaining = MAX_CANDIDATE - candidateCount;
+
+    if (candidateCount >= MAX_CANDIDATE) {
+      alert("候选区已满 (100/100)，无法继续上传");
+      return;
+    }
+
+    const filesToProcess = Array.from(files).slice(0, remaining);
+
+    for (let i = 0; i < filesToProcess.length; i++) {
+      const file = filesToProcess[i];
+      if (!file.type.startsWith("image/")) continue;
+
+      /* 读取图片并缩放至 150x164 */
+      const dataUrl = await scaleImage(file, 150, 164);
+      const id = "img_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+
+      const record = {
+        id: id,
+        game: GAME,
+        category: "candidate",
+        name: file.name,
+        dataUrl: dataUrl,
+        createdAt: Date.now()
+      };
+
+      await imageDB.put(record);
+
+      const card = createImageCard(record);
+      if (dropzones["candidate"]) {
+        dropzones["candidate"].appendChild(card);
+      }
+    }
+
+    refreshAllCounts();
+  }
+
+  /* ========== 图片缩放 ========== */
+  function scaleImage(file, targetW, targetH) {
+    return new Promise(function (resolve, reject) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+          const canvas = document.createElement("canvas");
+          canvas.width = targetW;
+          canvas.height = targetH;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, targetW, targetH);
+          resolve(canvas.toDataURL("image/jpeg", 0.9));
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /* ========== setupUpload ========== */
+  function setupUpload(inputElement) {
+    inputElement.addEventListener("change", function () {
+      if (inputElement.files && inputElement.files.length > 0) {
+        handleUpload(inputElement.files);
+        inputElement.value = "";
+      }
+    });
+  }
+
+  /* ========== 初始化 ========== */
+  async function init() {
+    /* 设置所有拖放区域 */
+    Object.keys(dropzones).forEach(function (cat) {
+      if (dropzones[cat]) {
+        setupDropZone(dropzones[cat], cat);
+      }
+    });
+
+    /* 设置上传 */
+    setupUpload(fileInput);
+
+    /* 从数据库加载已有图片 */
+    await renderImages();
+  }
+
+  /* 启动 */
+  if (typeof imageDB !== "undefined") {
+    init();
+  } else {
+    /* db.js 尚未加载，等待 */
+    window.addEventListener("load", function () {
+      if (typeof imageDB !== "undefined") {
+        init();
+      } else {
+        console.error("imageDB 未定义，请确保 db.js 已正确加载");
+      }
+    });
+  }
+
+})();
+</script>
+
+</body>
+</html>

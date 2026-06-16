@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>原神 元素图鉴</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body {
+      background: url("../images/原神.png") no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      min-height: 100vh;
+      color: #fff;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 0;
+    }
+
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 20px 28px;
+    }
+
+    .back-link {
+      display: inline-block;
+      color: #ccc;
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 10px;
+      padding: 7px 16px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.2s;
+    }
+    .back-link:hover {
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
+    }
+
+    .page-title {
+      text-align: center;
+      font-size: 38px;
+      font-weight: bold;
+      margin-bottom: 24px;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+      letter-spacing: 5px;
+    }
+
+    /* ========== 主布局：左 70% + 右 30% ========== */
+    .main-layout {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .left-area {
+      flex: 0 0 70%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .right-area {
+      flex: 0 0 30%;
+      position: sticky;
+      top: 20px;
+    }
+
+    /* ========== 元素区域 ========== */
+    .element-section {
+      background: rgba(10, 10, 24, 0.78);
+      backdrop-filter: blur(10px);
+      border-radius: 10px;
+      border-left: 5px solid #555;
+      padding: 12px 16px;
+      transition: border-left-color 0.3s;
+    }
+
+    .element-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .element-label-badge {
+      display: inline-block;
+      padding: 5px 16px;
+      border-radius: 6px;
+      color: #fff;
+      font-weight: bold;
+      font-size: 1em;
+      letter-spacing: 1px;
+    }
+
+    .element-count {
+      font-size: 13px;
+      color: #aaa;
+      margin-left: 2px;
+    }
+
+    /* 各元素左侧边框颜色 */
+    .sec-fire    { border-left-color: #ef5350; }
+    .sec-water   { border-left-color: #42a5f5; }
+    .sec-wind    { border-left-color: #66bb6a; }
+    .sec-thunder { border-left-color: #ab47bc; }
+    .sec-ice     { border-left-color: #80deea; }
+    .sec-grass   { border-left-color: #9ccc65; }
+    .sec-rock    { border-left-color: #ffa726; }
+
+    /* 各元素标签背景色 */
+    .lbl-fire    { background: #ef5350; }
+    .lbl-water   { background: #42a5f5; }
+    .lbl-wind    { background: #66bb6a; }
+    .lbl-thunder { background: #ab47bc; }
+    .lbl-ice     { background: #80deea; color: #000; }
+    .lbl-grass   { background: #9ccc65; color: #000; }
+    .lbl-rock    { background: #ffa726; }
+
+    /* ========== 候选面板 ========== */
+    .candidate-panel {
+      background: rgba(10, 10, 24, 0.82);
+      backdrop-filter: blur(12px);
+      border-radius: 10px;
+      border: 2px solid rgba(255, 255, 255, 0.18);
+      padding: 16px;
+      max-height: calc(100vh - 40px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .candidate-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .candidate-title {
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .candidate-upload-btn {
+      display: inline-block;
+      padding: 7px 18px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .candidate-upload-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    #upload-input {
+      display: none;
+    }
+
+    /* 候选区滚动 */
+    .candidate-scroll {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .candidate-scroll::-webkit-scrollbar {
+      width: 5px;
+    }
+    .candidate-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .candidate-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+
+    /* ========== Drop Zone 内部样式微调 ========== */
+    .drop-zone {
+      min-height: 100px;
+    }
+
+    .drop-zone .placeholder {
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 0.9em;
+      width: 100%;
+      text-align: center;
+      padding: 30px 0;
+    }
+
+    /* ========== 响应式 ========== */
+    @media (max-width: 1024px) {
+      .main-layout {
+        flex-direction: column;
+      }
+      .left-area {
+        flex: 1 1 auto;
+      }
+      .right-area {
+        flex: 1 1 auto;
+        position: static;
+        max-height: none;
+      }
+      .candidate-panel {
+        max-height: 500px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page-wrapper {
+        padding: 12px;
+      }
+      .page-title {
+        font-size: 26px;
+        letter-spacing: 2px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+  <a href="../index.html" class="back-link">&larr; 返回主页</a>
+  <h1 class="page-title">原神 元素图鉴</h1>
+
+  <div class="main-layout">
+    <!-- ======== 左侧：七元素归类区 ======== -->
+    <div class="left-area">
+      <!-- 火 -->
+      <div class="element-section sec-fire">
+        <div class="element-header">
+          <span class="element-label-badge lbl-fire">&#x1F525; 火</span>
+          <span class="element-count">(<span id="count-fire">0</span>/20)</span>
+        </div>
+        <div class="drop-zone" id="zone-fire" data-category="fire"></div>
+      </div>
+
+      <!-- 水 -->
+      <div class="element-section sec-water">
+        <div class="element-header">
+          <span class="element-label-badge lbl-water">&#x1F4A7; 水</span>
+          <span class="element-count">(<span id="count-water">0</span>/20)</span>
+        </div>
+        <div class="drop-zone" id="zone-water" data-category="water"></div>
+      </div>
+
+      <!-- 风 -->
+      <div class="element-section sec-wind">
+        <div class="element-header">
+          <span class="element-label-badge lbl-wind">&#x1F32A; 风</span>
+          <span class="element-count">(<span id="count-wind">0</span>/20)</span>
+        </div>
+        <div class="drop-zone" id="zone-wind" data-category="wind"></div>
+      </div>
+
+      <!-- 雷 -->
+      <div class="element-section sec-thunder">
+        <div class="element-header">
+          <span class="element-label-badge lbl-thunder">&#x26A1; 雷</span>
+          <span class="element-count">(<span id="count-thunder">0</span>/20)</span>
+        </div>
+        <div class="drop-zone" id="zone-thunder" data-category="thunder"></div>
+      </div>
+
+      <!-- 冰 -->
+      <div class="element-section sec-ice">
+        <div class="element-header">
+          <span class="element-label-badge lbl-ice">&#x2744; 冰</span>
+          <span class="element-count">(<span id="count-ice">0</span>/20)</span>
+        </div>
+        <div class="drop-zone" id="zone-ice" data-category="ice"></div>
+      </div>
+
+      <!-- 草 -->
+      <div class="element-section sec-grass">
+        <div class="element-header">
+          <span class="element-label-badge lbl-grass">&#x1F33F; 草</span>
+          <span class="element-count">(<span id="count-grass">0</span>/20)</span>
+        </div>
+        <div class="drop-zone" id="zone-grass" data-category="grass"></div>
+      </div>
+
+      <!-- 岩 -->
+      <div class="element-section sec-rock">
+        <div class="element-header">
+          <span class="element-label-badge lbl-rock">&#x1FAA8; 岩</span>
+          <span class="element-count">(<span id="count-rock">0</span>/20)</span>
+        </div>
+        <div class="drop-zone" id="zone-rock" data-category="rock"></div>
+      </div>
+    </div>
+
+    <!-- ======== 右侧：候选区 ======== -->
+    <div class="right-area">
+      <div class="candidate-panel">
+        <div class="candidate-header">
+          <span class="candidate-title">&#x1F4E6; 候选区</span>
+          <span class="element-count">(<span id="count-candidate">0</span>/100)</span>
+        </div>
+        <label class="candidate-upload-btn" for="upload-input">&#x1F4E4; 上传图片</label>
+        <input type="file" id="upload-input" accept="image/*" multiple>
+        <div class="drop-zone candidate-scroll" id="zone-candidate" data-category="__candidate__"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/db.js"></script>
+<script src="../js/upload.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var GAME = 'genshin';
+  var CATEGORIES = ['fire', 'water', 'wind', 'thunder', 'ice', 'grass', 'rock', '__candidate__'];
+
+  /* ---- DOM 引用 ---- */
+  var zones = {};
+  var countSpans = {};
+  for (var i = 0; i < CATEGORIES.length; i++) {
+    var cat = CATEGORIES[i];
+    var zoneId = cat === '__candidate__' ? 'zone-candidate' : 'zone-' + cat;
+    var countId = cat === '__candidate__' ? 'count-candidate' : 'count-' + cat;
+    zones[cat] = document.getElementById(zoneId);
+    countSpans[cat] = document.getElementById(countId);
+  }
+
+  var uploadInput = document.getElementById('upload-input');
+
+  /* ---- 占位提示维护 ---- */
+  function ensurePlaceholder(container) {
+    var cards = container.querySelectorAll('.img-card');
+    var placeholder = container.querySelector('.placeholder');
+    if (cards.length === 0 && !placeholder) {
+      var ph = document.createElement('div');
+      ph.className = 'placeholder';
+      ph.textContent = '拖拽图片到此处 或 从候选区添加';
+      container.appendChild(ph);
+    } else if (cards.length > 0 && placeholder) {
+      placeholder.remove();
+    }
+  }
+
+  /* ---- 刷新所有计数 ---- */
+  async function refreshAllCounts() {
+    for (var i = 0; i < CATEGORIES.length; i++) {
+      var cat = CATEGORIES[i];
+      var count = await imageDB.getCategoryCount(GAME, cat);
+      if (countSpans[cat]) {
+        countSpans[cat].textContent = count;
+      }
+    }
+  }
+
+  /* ---- 删除图片 ---- */
+  async function handleDelete(imgId, card) {
+    await imageDB.removeImage(imgId);
+    var parent = card.parentNode;
+    card.remove();
+    if (parent) ensurePlaceholder(parent);
+    await refreshAllCounts();
+  }
+
+  /* ---- 点击选中 ---- */
+  function handleClick(imgData, card) {
+    var allSelected = document.querySelectorAll('.img-card.selected');
+    for (var i = 0; i < allSelected.length; i++) {
+      allSelected[i].classList.remove('selected');
+    }
+    card.classList.add('selected');
+  }
+
+  /* ---- 拖放处理 ---- */
+  async function onDrop(dragData, targetZone) {
+    var imgId = dragData.id;
+    var toCat = targetZone.dataset.category;
+
+    /* 在 DOM 中找到卡片，以 DOM 上的 category 为准（不受 drag 闭包影响） */
+    var card = document.querySelector('.img-card[data-id="' + imgId + '"]');
+    if (!card) return;
+
+    var fromCat = card.dataset.category || '__candidate__';
+    if (fromCat === toCat) return;
+
+    /* 容量检查 */
+    if (toCat !== '__candidate__') {
+      var catFull = await imageDB.isCategoryFull(GAME, toCat);
+      if (catFull) {
+        alert('该元素区域已满 (20 张)');
+        return;
+      }
+    } else {
+      var candFull = await imageDB.isCandidateFull(GAME);
+      if (candFull) {
+        alert('候选区已满 (100 张)');
+        return;
+      }
+    }
+
+    /* 更新数据库 */
+    await imageDB.updateCategory(imgId, toCat);
+
+    /* 在 DOM 中移动 */
+    var sourceParent = card.parentNode;
+    card.dataset.category = toCat;
+    targetZone.appendChild(card);
+
+    if (sourceParent) ensurePlaceholder(sourceParent);
+    ensurePlaceholder(targetZone);
+
+    await refreshAllCounts();
+  }
+
+  /* ---- 初始化：从 DB 加载并渲染 ---- */
+  async function loadAndRender() {
+    var allImages = await imageDB.getImagesByGame(GAME);
+
+    /* 按分类分组 */
+    var groups = {};
+    for (var i = 0; i < CATEGORIES.length; i++) {
+      groups[CATEGORIES[i]] = [];
+    }
+    for (var j = 0; j < allImages.length; j++) {
+      var img = allImages[j];
+      var cat = img.category || '__candidate__';
+      if (groups[cat] !== undefined) {
+        groups[cat].push(img);
+      } else {
+        groups['__candidate__'].push(img);
+      }
+    }
+
+    /* 渲染各区域 */
+    for (var k = 0; k < CATEGORIES.length; k++) {
+      var cat = CATEGORIES[k];
+      if (zones[cat]) {
+        renderImages(zones[cat], groups[cat], handleClick, handleDelete);
+      }
+    }
+
+    await refreshAllCounts();
+  }
+
+  /* ---- 总初始化 ---- */
+  async function init() {
+    await imageDB.open();
+
+    /* 为所有 drop zone 绑定事件 */
+    for (var i = 0; i < CATEGORIES.length; i++) {
+      var cat = CATEGORIES[i];
+      if (zones[cat]) {
+        setupDropZone(zones[cat], onDrop);
+      }
+    }
+
+    /* 上传 */
+    setupUpload(uploadInput, GAME, async function (id, dataUrl, fileName) {
+      var imgData = { id: id, data: dataUrl, category: '__candidate__', tag: null, name: fileName };
+      var card = createImageCard(imgData, handleClick, handleDelete);
+      var zone = zones['__candidate__'];
+      ensurePlaceholder(zone);
+      zone.appendChild(card);
+      ensurePlaceholder(zone);
+      await refreshAllCounts();
+    });
+
+    /* 加载已有数据 */
+    await loadAndRender();
+  }
+
+  init().catch(function (err) {
+    console.error('初始化失败:', err);
+  });
+
+})();
+</script>
+
+</body>
+</html>
